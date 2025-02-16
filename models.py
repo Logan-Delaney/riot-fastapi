@@ -16,4 +16,4 @@ class RiotUser(Base):
     game_name = Column(String(50))
     tag_line = Column(String(10))
     summoner_id = Column(String(64))
-    puuid = Column(String(100))
+    puuid = Column(String(100), unique=True)
