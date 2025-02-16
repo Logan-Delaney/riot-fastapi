@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 import requests
 import os
 from dotenv import load_dotenv
+from utils.getChamp import getChamp
+
+load_dotenv()
 
 gameAccount_router = APIRouter(
     prefix="/game-account",
@@ -46,5 +49,22 @@ async def get_account(tagline: str, gamename: str, db: db_dependency):
         db.add(db_riot_user)
         db.commit()
         return riot_account
+    else:
+        raise HTTPException(status_code=response.status_code, detail=response.json())
+    
+@gameAccount_router.get("/champion", status_code=status.HTTP_200_OK)
+async def get_champion(champ_id: str):
+    return getChamp(champ_id)
+
+@gameAccount_router.get("/mastery", status_code=status.HTTP_200_OK)
+async def get_mastery(puuid: str, db: db_dependency):
+    url = f"https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count=3"
+    headers = {
+        'X-Riot-Token': api_key
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        masteries = response.json()
+        return getChamp(str(masteries[0]['championId'])), getChamp(str(masteries[1]['championId'])), getChamp(str(masteries[2]['championId']))
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
