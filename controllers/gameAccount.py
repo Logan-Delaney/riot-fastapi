@@ -43,9 +43,13 @@ async def get_account(tagline: str, gamename: str, db: db_dependency):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         riot_account = response.json()
+        puuid = riot_account['puuid']
+        summoner_url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+        summoner_account = requests.get(summoner_url, headers=headers).json()
+        riot_account['summoner_id'] = summoner_account['id']
         if db.query(models.RiotUser).filter(models.RiotUser.puuid == riot_account['puuid']).first():
             return riot_account
-        db_riot_user = models.RiotUser(game_name=riot_account['gameName'], tag_line=riot_account['tagLine'],  puuid=riot_account['puuid'])
+        db_riot_user = models.RiotUser(game_name=riot_account['gameName'], tag_line=riot_account['tagLine'],  puuid=riot_account['puuid'], summoner_id=riot_account['summoner_id'])
         db.add(db_riot_user)
         db.commit()
         return riot_account
