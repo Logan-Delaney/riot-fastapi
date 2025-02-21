@@ -1,3 +1,5 @@
 database.py
 __pycache__/
 .env
+alembic.ini
+alembic

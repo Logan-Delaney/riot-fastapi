@@ -17,3 +17,5 @@ class RiotUser(Base):
     tag_line = Column(String(10))
     summoner_id = Column(String(64))
     puuid = Column(String(100), unique=True)
+    solo_rank = Column(String(10))
+    flex_rank = Column(String(10))

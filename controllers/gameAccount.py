@@ -72,3 +72,24 @@ async def get_mastery(puuid: str, db: db_dependency):
         return getChamp(str(masteries[0]['championId'])), getChamp(str(masteries[1]['championId'])), getChamp(str(masteries[2]['championId']))
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
+    
+@gameAccount_router.get("/ranked", status_code=status.HTTP_200_OK)
+async def get_ranked(summoner_id: str, db: db_dependency):
+    url = f"https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
+    headers = {
+        'X-Riot-Token': api_key
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        ranked = response.json()
+        solo_rank = ranked[0]['tier'] + " " + ranked[0]['rank']
+        flex_rank = ranked[1]['tier'] + " " + ranked[1]['rank']
+        user = db.query(models.RiotUser).filter(models.RiotUser.summoner_id == summoner_id).first()
+        user.solo_rank = solo_rank
+        user.flex_rank = flex_rank
+        db.add(user)
+        db.commit()
+        return "Solo/Duo", solo_rank, "Flex", flex_rank
+    else:
+        raise HTTPException(status_code=response.status_code, detail=response.json())
+    
