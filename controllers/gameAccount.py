@@ -92,4 +92,51 @@ async def get_ranked(summoner_id: str, db: db_dependency):
         return "Solo/Duo", solo_rank, "Flex", flex_rank
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
+
+@gameAccount_router.get("/matches", status_code=status.HTTP_200_OK)
+async def get_matches(puuid: str):
+    count = 5
+    url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
+    headers = {
+        'X-Riot-Token': api_key
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        matches = response.json()
+        all_matches = []
+        for match in matches:
+            match_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/{match}"
+            match_data = requests.get(match_url, headers=headers).json()
+            particpants = match_data['info']['participants']
+            for (index, participant) in enumerate(particpants):
+                if participant['puuid'] == puuid:
+                    this_match = {}
+                    this_match['game_id'] = match_data['metadata']['matchId']
+                    this_match['game_mode'] = match_data['info']['gameMode']
+                    this_match['champion'] = match_data['info']['participants'][index]['championName']
+                    this_match['kills'] = match_data['info']['participants'][index]['kills']
+                    this_match['deaths'] = match_data['info']['participants'][index]['deaths']
+                    this_match['assists'] = match_data['info']['participants'][index]['assists']
+                    this_match['kda'] = f"{this_match['kills']}/{this_match['deaths']}/{this_match['assists']}"
+                    this_match['win'] = match_data['info']['participants'][index]['win']
+                    all_matches.append(this_match)
+        return all_matches
+                    
+    else:
+        raise HTTPException(status_code=response.status_code, detail=response.json())
+
+@gameAccount_router.get("/profile", status_code=status.HTTP_200_OK)
+async def get_profile(tagline: str, gamename: str, db: db_dependency):
+    riot_account = await get_account(tagline, gamename, db)
+    puuid = riot_account['puuid']
+    summoner_id = riot_account['summoner_id']
+    mastery = await get_mastery(puuid, db)
+    ranked = await get_ranked(summoner_id, db)
+    matches = await get_matches(puuid)
+    return {
+        "riot_account":riot_account,
+        "mastery": mastery, 
+        "ranked": ranked, 
+        "matches": matches
+    }
     
