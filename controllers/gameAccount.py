@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 from utils.getChamp import getChamp
 
-load_dotenv()
+load_dotenv(override=True)
 
 gameAccount_router = APIRouter(
     prefix="/game-account",
@@ -119,6 +119,7 @@ async def get_matches(puuid: str):
                     this_match['assists'] = match_data['info']['participants'][index]['assists']
                     this_match['kda'] = f"{this_match['kills']}/{this_match['deaths']}/{this_match['assists']}"
                     this_match['win'] = match_data['info']['participants'][index]['win']
+                    this_match['items'] = [match_data['info']['participants'][index]['item0'], match_data['info']['participants'][index]['item1'], match_data['info']['participants'][index]['item2'], match_data['info']['participants'][index]['item3'], match_data['info']['participants'][index]['item4'], match_data['info']['participants'][index]['item5'], match_data['info']['participants'][index]['item6']]
                     all_matches.append(this_match)
         return all_matches
                     

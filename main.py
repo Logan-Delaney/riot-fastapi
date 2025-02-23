@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 from controllers import user, gameAccount
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
