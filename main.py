@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 import requests
 import os
 from dotenv import load_dotenv
-from controllers import user, gameAccount
+from controllers import user, gameAccount, match
 
 load_dotenv(override=True)
 
@@ -29,6 +29,7 @@ app.add_middleware(
 
 app.include_router(user.user_router)
 app.include_router(gameAccount.gameAccount_router)
+app.include_router(match.match_router)
 
 api_key = os.getenv("RIOT_KEY")
 
