@@ -90,7 +90,7 @@ async def get_ranked(summoner_id: str, db: db_dependency):
         db.add(user)
         db.commit()
         return {
-            "Solo/Duo": solo_rank,
+            "Solo_Duo": solo_rank,
             "Flex": flex_rank
         }
     else:
