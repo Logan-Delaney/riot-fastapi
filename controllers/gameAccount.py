@@ -86,8 +86,16 @@ async def get_ranked(summoner_id: str, db: db_dependency):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         ranked = response.json()
-        solo_rank = ranked[0]['tier'] + " " + ranked[0]['rank']
-        flex_rank = ranked[1]['tier'] + " " + ranked[1]['rank']
+        if ranked[0]['queueType'] == 'RANKED_SOLO_5x5':
+            solo_rank = ranked[0]['tier'] + " " + ranked[0]['rank']
+            flex_rank = ranked[1]['tier'] + " " + ranked[1]['rank']
+            solo_winrate = f"{round(ranked[0]['wins'] / (ranked[0]['wins'] + ranked[0]['losses']) * 100, 2)}%"
+            flex_winrate = f"{round(ranked[1]['wins'] / (ranked[1]['wins'] + ranked[1]['losses']) * 100, 2)}%"
+        else:
+            solo_rank = ranked[1]['tier'] + " " + ranked[1]['rank']
+            flex_rank = ranked[0]['tier'] + " " + ranked[0]['rank']
+            solo_winrate = f"{round(ranked[1]['wins'] / (ranked[1]['wins'] + ranked[1]['losses']) * 100, 2)}%"
+            flex_winrate = f"{round(ranked[0]['wins'] / (ranked[0]['wins'] + ranked[0]['losses']) * 100, 2)}%"
         user = db.query(models.RiotUser).filter(models.RiotUser.summoner_id == summoner_id).first()
         user.solo_rank = solo_rank
         user.flex_rank = flex_rank
@@ -95,7 +103,9 @@ async def get_ranked(summoner_id: str, db: db_dependency):
         db.commit()
         return {
             "Solo_Duo": solo_rank,
-            "Flex": flex_rank
+            "Solo_Winrate": solo_winrate,
+            "Flex": flex_rank,
+            "Flex_Winrate": flex_winrate
         }
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
