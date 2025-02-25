@@ -69,7 +69,11 @@ async def get_mastery(puuid: str, db: db_dependency):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         masteries = response.json()
-        return getChamp(str(masteries[0]['championId'])), getChamp(str(masteries[1]['championId'])), getChamp(str(masteries[2]['championId']))
+        return {
+            'champ1': [getChamp(str(masteries[0]['championId'])), masteries[0]['championLevel']], 
+            'champ2': [getChamp(str(masteries[1]['championId'])), masteries[1]['championLevel']],
+            'champ3': [getChamp(str(masteries[2]['championId'])), masteries[2]['championLevel']]
+        }
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
     
