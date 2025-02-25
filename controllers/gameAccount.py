@@ -123,6 +123,9 @@ async def get_matches(puuid: str):
                     this_match['kda'] = f"{this_match['kills']}/{this_match['deaths']}/{this_match['assists']}"
                     this_match['win'] = match_data['info']['participants'][index]['win']
                     this_match['items'] = [match_data['info']['participants'][index]['item0'], match_data['info']['participants'][index]['item1'], match_data['info']['participants'][index]['item2'], match_data['info']['participants'][index]['item3'], match_data['info']['participants'][index]['item4'], match_data['info']['participants'][index]['item5'], match_data['info']['participants'][index]['item6']]
+                    this_match['damage'] = match_data['info']['participants'][index]['totalDamageDealtToChampions']
+                    this_match['gold'] = match_data['info']['participants'][index]['goldEarned']
+                    this_match['cs'] = match_data['info']['participants'][index]['totalMinionsKilled']
                     all_matches.append(this_match)
         return all_matches
                     
